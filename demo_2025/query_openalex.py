@@ -1,18 +1,13 @@
 """
-File: OA_query
+File: query_openalex
 Author: Lena Rosendahl
 Publication date: 03.2025
 """
 
 """ 
 Step 1: Query OA API
-Step 2: Collect and write metadata information
-"""
-
-"""
-Helper functions for OpenAlex queries.
-Authors: Lena Rosendahl
-Date: August 2024
+Step 2: Collect metadata information
+Step 3: Write metadata
 """
 
 import requests
