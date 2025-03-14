@@ -1,0 +1,10 @@
+{
+    "OA_base_params": {
+        "filter": "open_access.is_oa:true"
+    },
+    "OA_addtl_filters": {
+        "type": "article",
+        "language": "en",
+        "publication_year": "2024"
+    }
+}

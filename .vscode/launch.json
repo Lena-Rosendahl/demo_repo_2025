@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "name": "Query openalex",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/demo_2025/query_openalex.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--email",
+                "l2rosendahl7@gmail.com",
+                "--data_path",
+                "C:/Users/LRosendahl/OneDrive - Mathematica/Documents/demo_2025/metadata_storage/",
+                "--base_url",
+                "https://api.openalex.org/works",
+                // "--metadata_fn",
+                // "query_metadata.json",
+                "--topics",
+                "cryptocurrency"
+            ]
+        }
+    ]
+}
+      
