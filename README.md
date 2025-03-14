@@ -67,21 +67,37 @@ Items to be completed in R:
 Questions of interest:
 1. How does the number of results returned vary by year?
 2. How many unique authors contribute to these results?
-  2a. How many unique first authors?
-  2b. How many unique authors per country? (NOTE: May remove this question as the English constraint necessarily introduces bias)
-  2c. Can we visualize authorship by co-author? For example, a graph of authors taht appear together by frequency?
+
+   2a. How many unique first authors?
+
+   2b. How many unique authors per country? (NOTE: May remove this question as the English constraint necessarily introduces bias)
+
+   2c. Can we visualize authorship by co-author? For example, a graph of authors taht appear together by frequency?
 3. How much redundancy is there between matches identified using each matching method?
-  3a. How many matches do we identify total?
-  3b. How many matches do we identify by match strength?
-  3c. What percentage of total matches do we drop when removing redundant matches?
-  3d. What about by match strength (verify no exact matches are dropped).
+   
+    3a. How many matches do we identify total?
+   
+    3b. How many matches do we identify by match strength?
+   
+    3c. What percentage of total matches do we drop when removing redundant matches?
+   
+    3d. What about by match strength (verify no exact matches are dropped)
+   
 4. What are the success rates of our download attempts?
-  4a. At the work level?
-  4b. Of the URL-level failures, what are the percentages by type?
-  4c. Of the URL-level failures, what are the top 10 domains from which failed downloads originate?
+   
+    4a. At the work level?
+   
+    4b. Of the URL-level failures, what are the percentages by type?
+   
+    4c. Of the URL-level failures, what are the top 10 domains from which failed downloads originate?
+   
 5. What are the rates of positive and negative sentiments expressed?
-  5a. By work?
-  5b. By mention?
-  5c. By year?
+   
+    5a. By work?
+   
+    5b. By mention?
+   
+    5c. By year?
+   
 
     
