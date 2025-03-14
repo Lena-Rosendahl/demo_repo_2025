@@ -18,6 +18,18 @@
                 "--topics",
                 "cryptocurrency"
             ]
+        },
+
+        {
+            "name": "Read and process pdfs",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/demo_2025/download_URLs.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--metadata_path",
+                "C:/Users/LRosendahl/OneDrive - Mathematica/Documents/demo_2025/metadata_storage/OA_works_metadata.xlsx", 
+            ]
         }
     ]
 }
