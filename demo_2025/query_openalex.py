@@ -17,7 +17,7 @@ import argparse
 from pathlib import Path
 import pandas as pd
 from tqdm import tqdm
-import xlsxwriter
+
 
 def setup_params(param_path, email, topics, per_page=200):
     """
