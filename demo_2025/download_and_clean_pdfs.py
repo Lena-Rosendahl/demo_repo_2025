@@ -20,6 +20,8 @@ from PIL import Image
 from langdetect import detect
 import pytesseract
 import re
+import nltk
+import enchant
 """
 Step 1: Read in metadata about URLs
 Step 2: Use URLs to access PDFs
@@ -225,15 +227,49 @@ def clean_text(text):
 
     return text.strip()
 
-def write_text(text, text_path, work):
+def is_valid_sentence(sentence: str) -> bool:
+        """
+        Check if a sentence is valid based on certain criteria.
+
+        Parameters:
+            sentence (str): Input sentence to be validated.
+
+        Returns:
+            bool: True if the sentence is valid, False otherwise.
+        """
+        # Check if the sentence has at least 3 words
+        if len(sentence.split()) < 3:
+            return False
+
+        # Check if the sentence has at least one verb
+        tagged = nltk.pos_tag(nltk.word_tokenize(sentence))
+        if not any(tag.startswith("VB") for _, tag in tagged):
+            return False
+
+        return True
+
+def run_spellchecker(sentences):
+    d = enchant.Dict("en-US")
+    spellcheck_score = [sum([d.check(word) for word in sentence.split()])/len(sentence.split()) for sentence in sentences]
+    kept_sentences = [sentence for sentence in sentences if spellcheck_score[sentences.index(sentence)] >= .8]
+    return kept_sentences
+
+def remove_invalid_sentences(text):
+    sentences = re.split(r"[.]+", text)
+    sentences = [sentence for sentence in sentences if is_valid_sentence(sentence)]
+    sentences = run_spellchecker(sentences)
+    return sentences
+
+
+
+def write_text(sentences, text_path, work):
+    os.makedirs(text_path, exist_ok= True)
     # Split text into sentences and assign unique IDs
     fn = work.split('/')[-1] + '.txt'
     text_file_path = text_path / fn
-    sentences = re.split(r"[.]+", text)
     with open(text_file_path, "w", encoding="utf-8") as text_file:
-        for i, sent in enumerate(sentences):
-            unique_id = f"{id}_{i+1}"
-            text_file.write(f"{unique_id}: {sent}\n")
+        for sent in sentences:
+            text_file.write(f"{sent}\n")
     print(f"> Text written.")
 
 def write_metadata(data_path, meta_df):
@@ -248,13 +284,13 @@ def write_metadata(data_path, meta_df):
     # Close
     writer.close()
 
-def main(metadata_path):
+def main(metadata_path, text_path):
     data_dir = metadata_path.parent
     urls_dict = read_location_info(metadata_path)
     attempt_meta_info = list()
     # Get a set of user agent info to use in requests. Can help improve success rate.
     all_headers = get_all_uas()
-    for work, locations in urls_dict.items():  
+    for work, locations in tqdm(urls_dict.items(), desc = "Processing work...", unit = "work"):  
         status = 'Fail'
         if locations:
             for url in locations:
@@ -269,7 +305,8 @@ def main(metadata_path):
                     if text:
                         print("> Cleaning and saving.")
                         text = clean_text(text)
-                        write_text(text, data_dir, work)
+                        sentences = remove_invalid_sentences(text)
+                        write_text(sentences, text_path, work)
                         status = "Success"
                         attempt_meta_info.extend([{'OA_id': work, 'URL_attempted': url, 'status': status, 'Fail type': ''}])
                     else: 
@@ -291,9 +328,12 @@ if __name__ == "__main__":
         description="Download and clean OA papers"
     )
     parser.add_argument("--metadata_path", type=str, help="Path to URL information")
+    parser.add_argument("--text_path", type=str, help="Path to write text")
     args = parser.parse_args()
-    data_path = Path(args.metadata_path)
+    metadata_path = Path(args.metadata_path)
+    text_path = Path(args.text_path)
 
     main(
-        metadata_path = data_path
+        metadata_path,
+        text_path
     )

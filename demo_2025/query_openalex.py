@@ -150,9 +150,6 @@ def main(param_path, email, topics, per_page, base_url, data_path):
     # Write metadata
     # Although they're not efficient, xlsx workbooks are easy to read when opened in excel, so we'll use that. 
     write_metadata(data_path, meta_df, works_df, authors_df, urls_df)
-    
-
-
 
 
 if __name__ == "__main__":

@@ -24,13 +24,46 @@
             "name": "Read and process pdfs",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/demo_2025/download_URLs.py",
+            "program": "${workspaceFolder}/demo_2025/download_and_clean_pdfs.py",
             "console": "integratedTerminal",
             "args": [
                 "--metadata_path",
-                "C:/Users/LRosendahl/OneDrive - Mathematica/Documents/demo_2025/metadata_storage/OA_works_metadata.xlsx", 
+                "C:/Users/LRosendahl/OneDrive - Mathematica/Documents/demo_2025/metadata_storage/OA_works_metadata.xlsx",
+                "--text_path",
+                "C:/Users/LRosendahl/OneDrive - Mathematica/Documents/demo_2025/text_files", 
+            ]
+        },
+
+        {
+            "name": "Identify rule-based matches in text",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/demo_2025/rule_based_topic_matching.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--metadata_path",
+                "C:/Users/LRosendahl/OneDrive - Mathematica/Documents/demo_2025/metadata_storage/", 
+                "--text_path",
+                "C:/Users/LRosendahl/OneDrive - Mathematica/Documents/demo_2025/text_files",
+                "--topics",
+                "cryptocurrency",
+
+            ]
+        },
+
+        {
+            "name": "Sentiment analysis",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/demo_2025/sentiment_analysis.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--metadata_path",
+                "C:/Users/LRosendahl/OneDrive - Mathematica/Documents/demo_2025/metadata_storage/tagging_metadata.xlsx", 
+                
             ]
         }
+        
     ]
 }
       
