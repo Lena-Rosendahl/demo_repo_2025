@@ -30,16 +30,18 @@ from pathlib import Path
 import os
 from tqdm import tqdm
 
+
 def read_text(text_loc):
     # Step two, extract work id
     work_id = text_loc.stem
     # Step three, read in
 
-    with open(text_loc, 'r') as file:
+    with open(text_loc, "r") as file:
         body_text = file.readlines()
-    
+
     body_text = [line.strip() for line in body_text]
     return body_text, work_id
+
 
 def tag_exact(topic, work_id, body_text):
     """
@@ -53,12 +55,12 @@ def tag_exact(topic, work_id, body_text):
     Returns:
         tag_dict (dict): Dictionary of tags and metadata about tags.
     """
-    
+
     if isinstance(topic, list):
         all_topics = re.compile(r"\b(" + "|".join(topic) + r")\b")
     else:
         all_topics = re.compile(topic)
-    
+
     tag_list = []
     snippet_list = []
     section_id_list = []
@@ -87,6 +89,7 @@ def tag_exact(topic, work_id, body_text):
     }
 
     return tag_dict
+
 
 def tag_fuzzy(
     work_id,
@@ -150,6 +153,7 @@ def tag_fuzzy(
 
     return tag_dict
 
+
 def get_fuzzy_matches_at_threshold(body_text, topic, lower_threshold, upper_threshold):
     """
     Identify fuzzy matches with match strength within a certain range.
@@ -165,7 +169,7 @@ def get_fuzzy_matches_at_threshold(body_text, topic, lower_threshold, upper_thre
         snippet_list (list): List containing sentences where tags were identified
         section_id_list (list): List containing the index of the sentences where tags were identified
     """
-    topic_list = (topic if isinstance(topic, list) else [topic])
+    topic_list = topic if isinstance(topic, list) else [topic]
     match_results = process.cdist(
         body_text, topic_list, scorer=fuzz.partial_ratio
     )  # Returns a sentence_num by options_num array of match scores.
@@ -176,7 +180,9 @@ def get_fuzzy_matches_at_threshold(body_text, topic, lower_threshold, upper_thre
             )
         )
     )  # Converts scores to boolean "matches"
-    tag_list = [topic_list[x] for x in section_id_list[1, :]]  # Returns the items identified
+    tag_list = [
+        topic_list[x] for x in section_id_list[1, :]
+    ]  # Returns the items identified
     snippet_list = [body_text[x] for x in section_id_list[0, :]]  # Returns a snippet.
     section_id_list = section_id_list[
         0, :
@@ -186,6 +192,14 @@ def get_fuzzy_matches_at_threshold(body_text, topic, lower_threshold, upper_thre
     ]  # Add 1 to every index to match DH
 
     return tag_list, snippet_list, section_id_list
+
+
+def analysis_of_all_tag_metadata(dirty_tags_df):
+    total_mentions_found = len(dirty_tags_df)
+    total_mentions_by_strength = dirty_tags_df.groupby("strength").size()
+    total_mentions_by_strength = total_mentions_by_strength.reset_index(name = 'count')
+    return total_mentions_found, total_mentions_by_strength
+
 
 def create_control_tags(
     found_exact_match, exact_tags, strong_fuzzy_tags, work_id, strength
@@ -237,6 +251,7 @@ def create_control_tags(
 
     return found_control_match, control_tags
 
+
 def tag_redundant_matches(
     control_tags,
     comparison_tags,
@@ -279,6 +294,7 @@ def tag_redundant_matches(
 
     return flag_for_zeroshot
 
+
 def clean_rb_tags(tags):
     """
     Clean rule-based tag dataframe by:
@@ -306,7 +322,7 @@ def clean_rb_tags(tags):
     # Convert to dataframe
     tags_df = pd.DataFrame(tags)
     # One row per match found
-    tags_df = tags_df.explode(["section_id", "tag", "snippet"]) #"flag_for_zs"
+    tags_df = tags_df.explode(["section_id", "tag", "snippet"])  # "flag_for_zs"
     # Drop rows where matches are not found
     tags_df = tags_df.loc[tags_df["tag"].notna()]
 
@@ -328,27 +344,57 @@ def clean_rb_tags(tags):
     tags_df = tags_df.drop_duplicates()
     return tags_df
 
-def write_metdata(metadata_path, tags):
+
+def analysis_of_tag_redundancy(
+    tags_df, total_mentions_found, total_mentions_by_strength
+):
+    total_tags = len(tags_df)
+    dedupe_mentions_by_strength = tags_df.groupby("strength").size()
+    dedupe_mentions_by_strength = dedupe_mentions_by_strength.reset_index(name = 'count')
+    compare_counts = pd.DataFrame(
+        {"level": ["all"] + list(total_mentions_by_strength["strength"]),
+        
+            "all": [total_mentions_found] +
+                list(total_mentions_by_strength["count"])
+            
+        ,
+        
+            "deduplicated": [total_tags] + 
+                list(dedupe_mentions_by_strength["count"])
+            
+        },
+    )
+    compare_counts["percentage_lost"] = (
+        1 - compare_counts["deduplicated"] / compare_counts["all"]
+    ) * 100
+
+    return compare_counts
+
+
+def write_metdata(metadata_path, tags, comparison_df):
     # Make sure directory exists
     os.makedirs(metadata_path, exist_ok=True)
 
     # Write to an xlsx
-    writer = pd.ExcelWriter(metadata_path / 'tagging_metadata.xlsx', engine='openpyxl')
-    tags.to_excel(writer,'tagging_metadata')
-    
+    writer = pd.ExcelWriter(metadata_path / "tagging_metadata.xlsx", engine="openpyxl")
+    tags.to_excel(writer, "tagging_metadata")
+    comparison_df.to_excel(writer, "count_info")
+
     # Close
     writer.close()
+
 
 def main(metadata_path: Path, text_path: Path, topic: str, fuzzy_thresholds) -> dict:
     """
     Apply rule-based tagging to idenfity mentions for all documents.
 
     Parameters:
-        
+
     """
-    all_tags_df = pd.DataFrame()
+    clean_tags_df = pd.DataFrame()
+    dirty_tags_df = pd.DataFrame()
     all_text_files = os.listdir(text_path)
-    for file in tqdm(all_text_files, desc = "Idenfitying mentions...", unit = "text file"):
+    for file in tqdm(all_text_files, desc="Idenfitying mentions...", unit="text file"):
         tags = []
         body_text, work_id = read_text(text_path / file)
         exact_tags = tag_exact(topic, work_id, body_text)
@@ -370,23 +416,36 @@ def main(metadata_path: Path, text_path: Path, topic: str, fuzzy_thresholds) -> 
             topic,
             fuzzy_thresholds,
         )
+        
         tags.extend([exact_tags, strong_fuzzy_tags, weak_fuzzy_tags])
-
+        
+        dirty_tags_df = pd.concat([dirty_tags_df,pd.DataFrame(tags).explode(["section_id", "tag", "snippet"])])
+        
         tags_df = clean_rb_tags(tags)
-        all_tags_df = pd.concat([all_tags_df, tags_df])
-    write_metdata(metadata_path, all_tags_df)
+        clean_tags_df = pd.concat([clean_tags_df, tags_df])
+    
+    total_mentions_found, total_mentions_by_strength = analysis_of_all_tag_metadata(dirty_tags_df)
+    comparison_df = analysis_of_tag_redundancy(
+        clean_tags_df, total_mentions_found, total_mentions_by_strength
+        )
+    write_metdata(metadata_path, clean_tags_df, comparison_df)
     print('Complete')
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Identify mentions in text"
-    )
+    parser = argparse.ArgumentParser(description="Identify mentions in text")
     parser.add_argument("--metadata_path", type=str, help="Path to store metadata")
     parser.add_argument("--text_path", type=str, help="Path to text")
-    parser.add_argument("--topics", type = str, help = "topic for which to identify mentions")
-    
+    parser.add_argument(
+        "--topics", type=str, help="topic for which to identify mentions"
+    )
+
     args = parser.parse_args()
     metadata_path = Path(args.metadata_path)
     text_path = Path(args.text_path)
 
-    main(metadata_path, text_path, args.topics, fuzzy_thresholds = {"strong": [87.5, 100], "weak": [80, 87.5]})
+    main(
+        metadata_path,
+        text_path,
+        args.topics,
+        fuzzy_thresholds={"strong": [87.5, 100], "weak": [80, 87.5]},
+    )

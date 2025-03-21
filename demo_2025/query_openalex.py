@@ -88,12 +88,18 @@ def sample_publications_ids(params, base_url, addtl_filters=None):
 def get_metadata(resp):
     works = resp.get('results')
     meta_df = pd.DataFrame(resp.get('meta'), index = [0])
+    # Get easy-to-access info
     works_df = pd.DataFrame(works)[['id','doi','title','relevance_score','publication_year']]
+    # Format work id as just the ID, not the URL
+    works_df['work_id'] = works_df['id'].str.split('/').str[-1]
+    # Drop the URL
+    works_df.drop('id', axis = 1, inplace=True)
     # Get author info
     auths_df = pd.DataFrame()
     pdf_urls = list()
     for work in tqdm(works, desc = "Processing metadata...", unit = "work"):
-        work_id = work.get('id')
+        # Format work_id
+        work_id = work.get('id').split('/')[-1]
 
         # Get author information in a dataframe
         auth_info = pd.DataFrame.from_records(pd.DataFrame(work.get('authorships'))['author'])

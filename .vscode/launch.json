@@ -59,8 +59,13 @@
             "console": "integratedTerminal",
             "args": [
                 "--metadata_path",
-                "C:/Users/LRosendahl/OneDrive - Mathematica/Documents/demo_2025/metadata_storage/tagging_metadata.xlsx", 
-                
+                "C:/Users/LRosendahl/OneDrive - Mathematica/Documents/demo_2025/metadata_storage", 
+                "--text_path",
+                "C:/Users/LRosendahl/OneDrive - Mathematica/Documents/demo_2025/text_files", 
+                "--tag_fn",
+                "tagging_metadata.xlsx",
+                "--works_fn", 
+                "OA_works_metadata.xlsx"
             ]
         }
         
