@@ -308,17 +308,17 @@ def main(metadata_path, text_path):
                         sentences = remove_invalid_sentences(text)
                         write_text(sentences, text_path, work)
                         status = "Success"
-                        attempt_meta_info.extend([{'OA_id': work, 'URL_attempted': url, 'status': status, 'Fail type': ''}])
+                        attempt_meta_info.extend([{'work_id': work, 'URL_attempted': url, 'status': status, 'Fail type': ''}])
                     else: 
-                        attempt_meta_info.extend([{'OA_id': work, 'URL_attempted': url, 'status': status, 'Fail type': 'Could not read PDF'}])
+                        attempt_meta_info.extend([{'work_id': work, 'URL_attempted': url, 'status': status, 'Fail type': 'Could not read PDF'}])
                 else: 
-                    attempt_meta_info.extend([{'OA_id': work, 'URL_attempted': url, 'status': status, 'Fail type': 'Could not download PDF'}])
+                    attempt_meta_info.extend([{'work_id': work, 'URL_attempted': url, 'status': status, 'Fail type': 'Could not download PDF'}])
                 
                 if status == 'Success':
                     break
             else: continue
         else: 
-            attempt_meta_info.extend([{'OA_id': work, 'URL_attempted': 'None', 'status': status, 'Fail type': 'No URLs'}])
+            attempt_meta_info.extend([{'work_id': work, 'URL_attempted': 'None', 'status': status, 'Fail type': 'No URLs'}])
     meta_df = pd.DataFrame(attempt_meta_info)
     write_metadata(data_dir, meta_df)
     print('> Complete')
