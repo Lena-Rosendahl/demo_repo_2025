@@ -170,8 +170,9 @@ def get_fuzzy_matches_at_threshold(body_text, topic, lower_threshold, upper_thre
         section_id_list (list): List containing the index of the sentences where tags were identified
     """
     topic_list = topic if isinstance(topic, list) else [topic]
+    body_text_lc = [sentence.lower() for sentence in body_text]
     match_results = process.cdist(
-        body_text, topic_list, scorer=fuzz.partial_ratio
+        body_text_lc, topic_list, scorer=fuzz.partial_ratio
     )  # Returns a sentence_num by options_num array of match scores.
     section_id_list = np.array(
         (
