@@ -1,4 +1,6 @@
 # demo_repo_2025
+# NOTE: THIS REPOSITORY IS FOR DEMONSTRATION PURPOSES ONLY. 
+# NOTE: THIS REPOSITORY IS UNDER CONTINUOUS CONSTRUCTION. CODE IS NOT PRODUCTION READY OR TO BE CONSIDERED A FINAL PRODUCT.
 A repository containing demonstration code for resume items
 Targeted resume items include:
 - Web scraping:
